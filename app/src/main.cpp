@@ -1,9 +1,17 @@
 #include <iostream>
-#include "../include/test.h"
+#include <epollcxx.h>
 
 int main()
 {
-    TestRectangle rec(3,4);
-    std::cout << "Hello World ! " << std::endl;
-    rec.Print();
+    NetAddress Net("1.2.3.4", 6000);
+
+    std::cout << Net.GetIpAddress() << " " << Net.GetPort() << std::endl;
+    
+    GEpollService = new EpollService;
+
+    if(false == GEpollService->Initialize(5000, 1000))
+        return -1;
+    
+    
+
 }
