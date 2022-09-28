@@ -7,6 +7,8 @@
 #include "NetAddress.h"
 #include "Session.h"
 #include "EpollService.h"
+#include "ThreadTLS.h"
+#include "ThreadManager.h"
 
 
 #endif
