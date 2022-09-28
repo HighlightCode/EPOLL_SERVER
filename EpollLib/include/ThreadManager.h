@@ -26,6 +26,6 @@ private:
     std::vector<std::thread>     mThread;
 };
 
-
+extern ThreadManager* GThreadManager;
 
 #endif

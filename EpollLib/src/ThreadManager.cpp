@@ -2,6 +2,8 @@
 #include "../include/types.h"
 #include "../include/ThreadTLS.h"
 
+ThreadManager* GThreadManager = nullptr;
+
 ThreadManager::ThreadManager()
 {
     InitTLS();
@@ -10,13 +12,19 @@ ThreadManager::ThreadManager()
 
 ThreadManager::~ThreadManager()
 {
-    Join();
 }
 
 
 void ThreadManager::Launch(std::function<void(void)> callback)
 {
+    std::lock_guard<std::mutex> lock(mLock);
 
+	mThread.push_back(std::thread([=]()
+		{
+			InitTLS();
+			callback();
+			DestroyTLS();
+		}));
 }
 
 void ThreadManager::Join()
