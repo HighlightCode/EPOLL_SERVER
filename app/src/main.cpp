@@ -9,6 +9,7 @@ int main()
     
     GEpollService = new EpollService;
     GThreadManager = new ThreadManager();
+    GWorkerQueue = new WorkerQueue();
 
     if(false == GEpollService->Initialize(5000, 1000))
         return -1;
@@ -21,9 +22,25 @@ int main()
         }
     });
 
+    GThreadManager->Launch([=]()
+    {
+        while(true)
+        {
+            GWorkerQueue->waitpop();
+        }
+    });
+
+    GThreadManager->Launch([=]()
+    {
+        while(true)
+        {
+            GWorkerQueue->waitpop();
+        }
+    });
+    
     printf("[INFO] SERVER STATRTED \n");
 
-    GThreadManager->Join();
+    delete GThreadManager;
     delete GEpollService;
 
 }

@@ -11,6 +11,7 @@
 
 #include "../include/Session.h"
 #include "../include/EpollService.h"
+#include "../include/WorkerQueue.h"
 
 EpollService* GEpollService = nullptr ;
 
@@ -80,7 +81,7 @@ void EpollService::EventLoop()
 {
     epoll_event events[MAX_CONNECTION];
     
-    while(true)
+    while(bIsServerRun)
     {
        int nfd = epoll_wait(mEpollFd, events, MAX_CONNECTION, 100);
        
@@ -100,15 +101,48 @@ void EpollService::EventLoop()
 
 				Session* newClient = CreateSession(client);
 				newClient->OnConnect(clientAddr);
+				
+				printf("[INFO] ACCEPT SOCKET NUM : %d \n", client);
 
 				epoll_event ev;
 				memset(&ev, 0, sizeof(ev));
 				ev.events = EPOLLIN | EPOLLET;
-				ev.data.ptr = static_cast<void*>(newClient);
+				ev.data.fd = client;
+				//ev.data.ptr = static_cast<void*>(newClient);
 				epoll_ctl(mEpollFd, EPOLL_CTL_ADD, client, &ev);
-            }
+            } 
+			else 
+			{
+				printf("[INFO] RECEIVE EVENT OCCURED \n");
+				GWorkerQueue->pushSignal(events[i]);
+			}
        }
-
     }
+}
 
+bool EpollService::handleFd(struct epoll_event ev)
+{
+	//int readn 		= 0;
+	int sockFd 			= ev.data.fd;
+	//bool closeFlag 	= false;
+	printf("[INFO] RECEIVE SOCKET NUM : %d \n", sockFd);
+	if(mClientList.find(sockFd) == mClientList.end()) {
+		printf("[ERROR] ERROR IN FIND RECEIVE EVENT SESSION \n");
+		return false;
+	} 
+
+	printf("[INFO] SUCCESS IN FIND RECEIVE EVENT \n");
+	Session* currentSession = mClientList[sockFd];
+
+	//char ReadBuf[1024] = {0,};
+	currentSession->OnReceive();
+	
+	epoll_event newEV;
+	memset(&newEV, 0, sizeof(newEV));
+	newEV.events = EPOLLIN | EPOLLET;
+	newEV.data.fd = sockFd;
+	newEV.data.ptr = static_cast<void*>(currentSession);
+	epoll_ctl(mEpollFd, EPOLL_CTL_ADD, sockFd, &newEV);
+
+	return true;
 }

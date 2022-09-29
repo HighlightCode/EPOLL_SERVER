@@ -12,6 +12,7 @@ ThreadManager::ThreadManager()
 
 ThreadManager::~ThreadManager()
 {
+    Join();
 }
 
 

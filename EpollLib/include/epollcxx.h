@@ -9,6 +9,6 @@
 #include "EpollService.h"
 #include "ThreadTLS.h"
 #include "ThreadManager.h"
-
+#include "WorkerQueue.h"
 
 #endif

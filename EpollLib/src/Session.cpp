@@ -29,7 +29,7 @@ void Session::OnConnect(sockaddr_in addr)
     int opt = 1;
     setsockopt(mSocket, IPPROTO_TCP, TCP_NODELAY, (const char*)&opt, sizeof(int));
 
-    printf("[DEBUG] Client Connected: IP=%s, PORT=%d\n", mSockAddr.GetIpAddress().c_str(), mSockAddr.GetPort()) ;
+    printf("[DEBUG] Client Connected: SOCKET_FD=%d, IP=%s, PORT=%d\n",mSocket, mSockAddr.GetIpAddress().c_str(), mSockAddr.GetPort()) ;
 
     mConnected = true;
 }
@@ -65,6 +65,6 @@ void Session::OnReceive()
         }
 
         mReceiveBuffer.Commit(nread);
-        printf("[DEBUG] Session Received %d Bytes .", nread);
+        printf("[DEBUG] Session Received %d Bytes . \n", nread);
     }
 }
