@@ -11,10 +11,13 @@
 
 #include "Session.h"
 #include "NetAddress.h"
+#include "../include/EpollService.h"
+
 
 Session::~Session()
 {
     close(mSocket);
+    printf("[INFO] CLIENT SESSION DELETED \n");
 }
 
 void Session::OnConnect(sockaddr_in addr)
@@ -25,7 +28,7 @@ void Session::OnConnect(sockaddr_in addr)
     int flag = fcntl(mSocket, F_GETFL, 0);
     fcntl(mSocket, F_SETFL, flag | O_NONBLOCK);
 
-    // set off Nagle
+    // Set off Nagle
     int opt = 1;
     setsockopt(mSocket, IPPROTO_TCP, TCP_NODELAY, (const char*)&opt, sizeof(int));
 
@@ -38,17 +41,18 @@ void Session::DisConnect()
 {
     if(!IsConnected()) return;
 
-    // linger Options
+    // Linger Options
     linger lingerOption;
     lingerOption.l_onoff = 1;
 	lingerOption.l_linger = 0;
 
     if (setsockopt(mSocket, SOL_SOCKET, SO_LINGER, (char*)&lingerOption, sizeof(linger)) < 0)
 	{
-		printf("[DEBUG] setsockopt linger option error\n");
+		printf("[DEBUG] setsockopt linger option error . \n");
 		return;
 	}
-
+    
+    mConnected = false;
 }
 
 void Session::OnReceive()
@@ -61,10 +65,18 @@ void Session::OnReceive()
             if(errno == EAGAIN)
                 break;
             DisConnect();
-            return;
+            break;
+        } 
+        else if(0 == nread)
+        {
+            printf("[INFO] Session Closed . Fd: %d \n", mSocket);
+            DisConnect();
+            break;
         }
-
         mReceiveBuffer.Commit(nread);
         printf("[DEBUG] Session Received %d Bytes . \n", nread);
     }
+
+    if(!IsConnected())
+        GEpollService->ReleaseClient(this);
 }

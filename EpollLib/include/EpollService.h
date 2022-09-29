@@ -12,11 +12,11 @@ class Session;
 class EpollService
 {
 public:
-    EpollService() : mEpollFd(-1), mListenSocket(-1), bIsServerRun(true) {}
+    EpollService() : bIsServerRun(true), mEpollFd(-1), mListenSocket(-1) {}
 
     bool        Initialize(uint16 Port, uint32 MaxClient);
 
-    Session*    CreateSession(SOCKET sock);
+    Session*    CreateSession(SOCKET _sock);
 
     void        DeleteSession(Session* _session);
 
@@ -24,18 +24,20 @@ public:
 
     void        EventLoop();
 
-    bool        handleFd(struct epoll_event ev);
+    void        ReleaseClient(Session* _session);
+
+    bool        handleFd(struct epoll_event _ev);
 
 private:
     using ClientList = std::map<SOCKET, Session*>;
 
     bool        bIsServerRun;
 
-    ClientList  mClientList;
-
     SOCKET      mEpollFd;
 
     SOCKET      mListenSocket;
+
+    ClientList  mClientList;
 };
 
 extern EpollService* GEpollService;

@@ -53,7 +53,7 @@ bool EpollService::Initialize(uint16 Port, uint32 MaxClient)
 	if (ret < 0)
 		return false;
 
-    printf("[DEBUG] EPOLL SERVICE SUCCESSFULLY INITIALIZED \n");
+    printf("[DEBUG] EPOLL SERVICE SUCCESSFULLY INITIALIZED . \n");
 	return true;
 
 }
@@ -95,36 +95,44 @@ void EpollService::EventLoop()
 				SOCKET client = accept(mListenSocket, (sockaddr *)&clientAddr, &clientAddrLen);
 				if (client < 0) 
 				{
-					printf("[DEBUG] accept error: IP=%s, PORT=%d\n", inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
+					printf("[DEBUG] accept error: IP=%s, PORT=%d . \n", inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
 					continue;
 				}
 
 				Session* newClient = CreateSession(client);
 				newClient->OnConnect(clientAddr);
 				
-				printf("[INFO] ACCEPT SOCKET NUM : %d \n", client);
+				printf("[INFO] ACCEPT SOCKET NUM : %d . \n", client);
 
 				epoll_event ev;
 				memset(&ev, 0, sizeof(ev));
 				ev.events = EPOLLIN | EPOLLET;
-				ev.data.fd = client;
-				//ev.data.ptr = static_cast<void*>(newClient);
+				ev.data.ptr = static_cast<void*>(newClient);
 				epoll_ctl(mEpollFd, EPOLL_CTL_ADD, client, &ev);
             } 
 			else 
 			{
-				printf("[INFO] RECEIVE EVENT OCCURED \n");
+				printf("[INFO] RECEIVE EVENT OCCURED . \n");
 				GWorkerQueue->pushSignal(events[i]);
 			}
        }
     }
 }
 
+void EpollService::ReleaseClient(Session* _session)
+{
+	epoll_event ev;
+	memset(&ev, 0, sizeof(epoll_event));
+	epoll_ctl(mEpollFd, EPOLL_CTL_DEL, _session->GetSocket(), &ev);
+
+	delete _session;
+}
+
 bool EpollService::handleFd(struct epoll_event ev)
 {
-	//int readn 		= 0;
-	int sockFd 			= ev.data.fd;
-	//bool closeFlag 	= false;
+	Session* currentSession = reinterpret_cast<Session*>(ev.data.ptr);
+	int sockFd = currentSession->GetSocket();
+
 	printf("[INFO] RECEIVE SOCKET NUM : %d \n", sockFd);
 	if(mClientList.find(sockFd) == mClientList.end()) {
 		printf("[ERROR] ERROR IN FIND RECEIVE EVENT SESSION \n");
@@ -132,7 +140,6 @@ bool EpollService::handleFd(struct epoll_event ev)
 	} 
 
 	printf("[INFO] SUCCESS IN FIND RECEIVE EVENT \n");
-	Session* currentSession = mClientList[sockFd];
 
 	//char ReadBuf[1024] = {0,};
 	currentSession->OnReceive();
@@ -140,7 +147,6 @@ bool EpollService::handleFd(struct epoll_event ev)
 	epoll_event newEV;
 	memset(&newEV, 0, sizeof(newEV));
 	newEV.events = EPOLLIN | EPOLLET;
-	newEV.data.fd = sockFd;
 	newEV.data.ptr = static_cast<void*>(currentSession);
 	epoll_ctl(mEpollFd, EPOLL_CTL_ADD, sockFd, &newEV);
 
