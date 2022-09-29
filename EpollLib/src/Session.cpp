@@ -73,6 +73,7 @@ void Session::OnReceive()
             DisConnect();
             break;
         }
+        printf("%.*s\n",nread ,reinterpret_cast<char*>(mReceiveBuffer.GetBuffer()));
         mReceiveBuffer.Commit(nread);
         printf("[DEBUG] Session Received %d Bytes . \n", nread);
     }

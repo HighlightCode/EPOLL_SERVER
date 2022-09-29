@@ -3,10 +3,6 @@
 
 int main()
 {
-    NetAddress Net("127.0.0.1", 6000);
-
-    std::cout << Net.GetIpAddress() << " " << Net.GetPort() << std::endl;
-
     GEpollService = new EpollService;
     GThreadManager = new ThreadManager();
     GWorkerQueue = new WorkerQueue();
