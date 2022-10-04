@@ -143,7 +143,6 @@ bool EpollService::handleFd(struct epoll_event ev)
 
 	//char ReadBuf[1024] = {0,};
 	currentSession->OnReceive();
-	
 	epoll_event newEV;
 	memset(&newEV, 0, sizeof(newEV));
 	newEV.events = EPOLLIN | EPOLLET;

@@ -74,6 +74,7 @@ void Session::OnReceive()
             break;
         }
         printf("%.*s\n",nread ,reinterpret_cast<char*>(mReceiveBuffer.GetBuffer()));
+        write(mSocket,mReceiveBuffer.GetBuffer(),nread);
         mReceiveBuffer.Commit(nread);
         printf("[DEBUG] Session Received %d Bytes . \n", nread);
     }

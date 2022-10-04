@@ -10,6 +10,8 @@ int main()
     if (false == GEpollService->Initialize(5000, 1000))
         return -1;
 
+    printf("[INFO] SERVER STATRTED \n");
+
     GThreadManager->Launch([=]()
         {
             while(true)
@@ -29,8 +31,6 @@ int main()
             } 
         });
     }
-
-    printf("[INFO] SERVER STATRTED \n");
 
     delete GThreadManager;
     delete GEpollService;
