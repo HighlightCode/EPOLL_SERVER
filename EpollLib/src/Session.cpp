@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string>
 #include <string.h>
 #include <fcntl.h>
 #include <sys/socket.h>
@@ -73,10 +74,16 @@ void Session::OnReceive()
             DisConnect();
             break;
         }
-        printf("%.*s\n",nread ,reinterpret_cast<char*>(mReceiveBuffer.GetBuffer()));
-        write(mSocket,mReceiveBuffer.GetBuffer(),nread);
+        mTcpCallback->OnRecv(nread, reinterpret_cast<char*>(mReceiveBuffer.GetBuffer()));
+        //printf("%.*s\n",nread ,reinterpret_cast<char*>(mReceiveBuffer.GetBuffer()));
+        std::string send_buffer{reinterpret_cast<char*>(mReceiveBuffer.GetBuffer()),0,(size_t)nread};
+        //const std::string blue = "\x1B[34m";
+        //const std::string bold = "\x1B[1m";
+        //send_buffer = blue + bold + send_buffer;
+        write(mSocket, send_buffer.c_str(), send_buffer.size());
+        //write(mSocket,mReceiveBuffer.GetBuffer(),nread);
         mReceiveBuffer.Commit(nread);
-        printf("[DEBUG] Session Received %d Bytes . \n", nread);
+        //printf("[DEBUG] Session Received %d Bytes . \n", nread);
     }
 
     if(!IsConnected())

@@ -9,6 +9,7 @@
 #include <sys/socket.h>
 
 #include "circular_buffer.h"
+#include "EPollInterface.h"
 #include "NetAddress.h"
 
 
@@ -16,7 +17,9 @@ class Session
 {
 public:
     Session(SOCKET sock) : mConnected(false), mSocket(sock), mSendBuffer(BUFSIZ), mReceiveBuffer(BUFSIZ)
-    { }
+    { 
+        mTcpCallback = nullptr;
+    }
 
     virtual ~Session();
 
@@ -30,8 +33,10 @@ public:
     inline SOCKET const GetSocket() {return mSocket;}
     inline bool         IsConnected() {return mConnected;}
     NetAddress          GetAddress() {return mSockAddr;}
-
-
+    
+    void                SetTcpSockCallback(ITcpSocketCallback* pTcpCallback) { mTcpCallback = pTcpCallback;}
+    ITcpSocketCallback* GetTcpCallback() { return mTcpCallback;}
+    
 protected:
     /* Contents Code Redef */
     virtual int32   OnRecv(BYTE* buffer, int32 len) {return len;}
@@ -45,6 +50,8 @@ private:
 
     CircularBuffer  mSendBuffer;
     CircularBuffer  mReceiveBuffer;
+
+    ITcpSocketCallback* mTcpCallback;
 };
 
 

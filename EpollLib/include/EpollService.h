@@ -6,27 +6,32 @@
 #include <sys/epoll.h>
 #include "types.h"
 
+class ITcpSocketCallback;
 
 class Session;
 
 class EpollService
 {
 public:
-    EpollService() : bIsServerRun(true), mEpollFd(-1), mListenSocket(-1) {}
+    EpollService() : bIsServerRun(true), mEpollFd(-1), mListenSocket(-1) {
+        mTcpCallback = nullptr;
+    }
 
-    bool        Initialize(uint16 Port, uint32 MaxClient);
+    bool        Initialize(uint16 Port, uint32 MaxClient, ITcpSocketCallback* Callback = nullptr);
 
     Session*    CreateSession(SOCKET _sock);
 
     void        DeleteSession(Session* _session);
 
-    SOCKET      GetEPollFd() const { return mEpollFd; }
+    SOCKET      GetEpollFd() const { return mEpollFd; }
 
     void        EventLoop();
 
     void        ReleaseClient(Session* _session);
 
     bool        handleFd(struct epoll_event _ev);
+
+    inline void SetSockCallback(ITcpSocketCallback* pTcpCallback) { mTcpCallback = pTcpCallback;}
 
 private:
     using ClientList = std::map<SOCKET, Session*>;
@@ -38,6 +43,8 @@ private:
     SOCKET      mListenSocket;
 
     ClientList  mClientList;
+
+    ITcpSocketCallback* mTcpCallback;
 };
 
 extern EpollService* GEpollService;

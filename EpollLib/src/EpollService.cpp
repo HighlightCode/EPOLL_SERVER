@@ -15,7 +15,7 @@
 
 EpollService* GEpollService = nullptr ;
 
-bool EpollService::Initialize(uint16 Port, uint32 MaxClient)
+bool EpollService::Initialize(uint16 Port, uint32 MaxClient, ITcpSocketCallback* Callback)
 {
 	mListenSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if (mListenSocket < 0)
@@ -53,7 +53,12 @@ bool EpollService::Initialize(uint16 Port, uint32 MaxClient)
 	if (ret < 0)
 		return false;
 
-    printf("[DEBUG] EPOLL SERVICE SUCCESSFULLY INITIALIZED . \n");
+	if(Callback != nullptr)
+		SetSockCallback(Callback);
+	else 
+		return false;
+    
+	printf("[DEBUG] EPOLL SERVICE SUCCESSFULLY INITIALIZED . \n");
 	return true;
 
 }
@@ -101,6 +106,7 @@ void EpollService::EventLoop()
 
 				Session* newClient = CreateSession(client);
 				newClient->OnConnect(clientAddr);
+				newClient->SetTcpSockCallback(mTcpCallback);
 				
 				printf("[INFO] ACCEPT SOCKET NUM : %d . \n", client);
 

@@ -1,13 +1,16 @@
 #include <iostream>
 #include <epollcxx.h>
 
+#include "ServerSession.h"
+
 int main()
 {
     GEpollService = new EpollService;
     GThreadManager = new ThreadManager();
     GWorkerQueue = new WorkerQueue();
+    ClientCallback* pClientCallback = new ClientCallback();
 
-    if (false == GEpollService->Initialize(5000, 1000))
+    if (false == GEpollService->Initialize(5000, 1000, pClientCallback))
         return -1;
 
     printf("[INFO] SERVER STATRTED \n");
@@ -34,4 +37,5 @@ int main()
 
     delete GThreadManager;
     delete GEpollService;
+    delete pClientCallback;
 }

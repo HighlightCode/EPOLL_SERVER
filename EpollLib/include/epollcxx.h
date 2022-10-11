@@ -10,5 +10,6 @@
 #include "ThreadTLS.h"
 #include "ThreadManager.h"
 #include "WorkerQueue.h"
+#include "EPollInterface.h"
 
 #endif
