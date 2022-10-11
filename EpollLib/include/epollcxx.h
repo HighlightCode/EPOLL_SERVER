@@ -11,5 +11,7 @@
 #include "ThreadManager.h"
 #include "WorkerQueue.h"
 #include "EPollInterface.h"
+#include "DBJobManager.h"
+#include "DBConnector.h"
 
 #endif

@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <map>
+#include <string>
 #include <sys/epoll.h>
 #include "types.h"
 
@@ -34,6 +35,10 @@ public:
     inline void SetSockCallback(ITcpSocketCallback* pTcpCallback) { mTcpCallback = pTcpCallback;}
     
     void        FlushClientSend();
+
+    void        BroadCast(std::string& pMessage);
+
+    void        DispatchDatabaseJobResults() ;
 
 private:
     using ClientList = std::map<SOCKET, Session*>;

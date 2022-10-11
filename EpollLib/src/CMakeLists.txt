@@ -31,7 +31,9 @@ MESSAGE(STATUS "Binary dir: " ${PROJECT_BINARY_DIR})
 MESSAGE(STATUS "Source dir: " ${PROJECT_SOURCE_DIR})
 
 # add target libraries
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} pthread)
+include_directories(/usr/include)
+link_directories(/usr/lib)
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} pthread sqlite3)
 
 # set Library Files to Lib
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)

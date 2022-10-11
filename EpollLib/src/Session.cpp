@@ -56,6 +56,14 @@ void Session::DisConnect()
     mConnected = false;
 }
 
+void Session::OnSend(std::string SendPacket)
+{
+    if (false == mSendBuffer.Write(SendPacket.c_str(), SendPacket.size()))
+    {
+        DisConnect() ;
+    }
+}
+
 void Session::OnReceive()
 {
     while(true)
@@ -74,20 +82,9 @@ void Session::OnReceive()
             DisConnect();
             break;
         }
-        mTcpCallback->OnRecv(nread, reinterpret_cast<char*>(mReceiveBuffer.GetBuffer()));
-        //printf("%.*s\n",nread ,reinterpret_cast<char*>(mReceiveBuffer.GetBuffer()));
+        mTcpCallback->OnRecv(this, nread, reinterpret_cast<char*>(mReceiveBuffer.GetBuffer()));
         std::string send_buffer{reinterpret_cast<char*>(mReceiveBuffer.GetBuffer()),0,(size_t)nread};
-        //const std::string blue = "\x1B[34m";
-        //const std::string bold = "\x1B[1m";
-        //send_buffer = blue + bold + send_buffer;
-        if (false == mSendBuffer.Write((char*)mReceiveBuffer.GetBuffer(), nread))
-	    {
-		    DisConnect() ;
-	    }
-        //write(mSocket, send_buffer.c_str(), send_buffer.size());
-        //write(mSocket,mReceiveBuffer.GetBuffer(),nread);
         mReceiveBuffer.Commit(nread);
-        //printf("[DEBUG] Session Received %d Bytes . \n", nread);
     }
 
     if(!IsConnected())
@@ -116,4 +113,18 @@ bool Session::SendFlush()
         mSendBuffer.Remove(sent);
     }
     return true;
+}
+
+void Session::DatabaseJobDone(DatabaseJobContext* pDBContext)
+{
+	if (typeid(*pDBContext) == typeid(FindPlayerDataContext))
+	{
+		FindPlayerDataContext* login = dynamic_cast<FindPlayerDataContext*>(pDBContext) ;
+		printf("[INFO]Login Successed . \n");
+        SetChat();
+	}
+	else
+	{
+		printf("[INFO]Login Failed . \n");
+	}
 }

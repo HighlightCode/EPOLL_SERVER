@@ -29,5 +29,7 @@ using SOCKET    = int;
 
 #define MAX_CONNECTION 5000
 #define MAX_BUFFERSIZE 2048
+#define MAX_PLAYERID   32
+#define MAX_DBJOB      128
 
 #endif
