@@ -32,6 +32,8 @@ public:
     bool        handleFd(struct epoll_event _ev);
 
     inline void SetSockCallback(ITcpSocketCallback* pTcpCallback) { mTcpCallback = pTcpCallback;}
+    
+    void        FlushClientSend();
 
 private:
     using ClientList = std::map<SOCKET, Session*>;

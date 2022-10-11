@@ -16,7 +16,7 @@
 class Session
 {
 public:
-    Session(SOCKET sock) : mConnected(false), mSocket(sock), mSendBuffer(BUFSIZ), mReceiveBuffer(BUFSIZ)
+    Session(SOCKET sock) : mConnected(false), mSocket(sock)
     { 
         mTcpCallback = nullptr;
     }
@@ -36,7 +36,9 @@ public:
     
     void                SetTcpSockCallback(ITcpSocketCallback* pTcpCallback) { mTcpCallback = pTcpCallback;}
     ITcpSocketCallback* GetTcpCallback() { return mTcpCallback;}
-    
+
+    bool                SendFlush(); 
+
 protected:
     /* Contents Code Redef */
     virtual int32   OnRecv(BYTE* buffer, int32 len) {return len;}
@@ -48,8 +50,8 @@ private:
 
     NetAddress      mSockAddr{};
 
-    CircularBuffer  mSendBuffer;
-    CircularBuffer  mReceiveBuffer;
+    CircularBuffer  mSendBuffer{BUFSIZ};
+    CircularBuffer  mReceiveBuffer{BUFSIZ};
 
     ITcpSocketCallback* mTcpCallback;
 };

@@ -122,6 +122,7 @@ void EpollService::EventLoop()
 				GWorkerQueue->pushSignal(events[i]);
 			}
        }
+	   FlushClientSend();
     }
 }
 
@@ -156,4 +157,16 @@ bool EpollService::handleFd(struct epoll_event ev)
 	epoll_ctl(mEpollFd, EPOLL_CTL_ADD, sockFd, &newEV);
 
 	return true;
+}
+
+void EpollService::FlushClientSend()
+{
+	for (auto& it : mClientList)
+	{
+		Session* client = it.second;
+		if (false == client->SendFlush())
+		{
+			client->DisConnect();
+		}
+	}
 }

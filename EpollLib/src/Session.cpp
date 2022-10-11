@@ -80,7 +80,11 @@ void Session::OnReceive()
         //const std::string blue = "\x1B[34m";
         //const std::string bold = "\x1B[1m";
         //send_buffer = blue + bold + send_buffer;
-        write(mSocket, send_buffer.c_str(), send_buffer.size());
+        if (false == mSendBuffer.Write((char*)mReceiveBuffer.GetBuffer(), nread))
+	    {
+		    DisConnect() ;
+	    }
+        //write(mSocket, send_buffer.c_str(), send_buffer.size());
         //write(mSocket,mReceiveBuffer.GetBuffer(),nread);
         mReceiveBuffer.Commit(nread);
         //printf("[DEBUG] Session Received %d Bytes . \n", nread);
@@ -88,4 +92,28 @@ void Session::OnReceive()
 
     if(!IsConnected())
         GEpollService->ReleaseClient(this);
+}
+
+bool Session::SendFlush()
+{
+    if(!IsConnected())
+        return false;
+
+    // Nothing to send return true
+    if(mSendBuffer.GetContiguiousBytes() == 0)
+        return true;
+    
+    while(mSendBuffer.GetContiguiousBytes() > 0)
+    {
+        int sent = write(mSocket, mSendBuffer.GetBufferStart(), mSendBuffer.GetContiguiousBytes());
+        if (sent < 0)
+		{
+			if (errno == EAGAIN)
+				return true;
+
+			return false;
+        }
+        mSendBuffer.Remove(sent);
+    }
+    return true;
 }

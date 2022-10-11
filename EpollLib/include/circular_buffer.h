@@ -8,7 +8,7 @@ class CircularBuffer
 {
 public:
 
-	CircularBuffer(size_t capacity) : mBRegionPointer(nullptr), mARegionSize(0), mBRegionSize(0)
+	CircularBuffer(size_t capacity) : mARegionSize(0), mBRegionSize(0), mBRegionPointer(nullptr)
 	{
 		mBuffer = new char[capacity] ;
 		mBufferEnd = mBuffer + capacity ;
@@ -111,14 +111,14 @@ private:
 
 private:
 
-	char*	mBuffer ;
-	char*	mBufferEnd ;
+	char*	mBuffer = nullptr;
+	char*	mBufferEnd = nullptr;
 
-	char*	mARegionPointer ;
-	size_t	mARegionSize ;
+	char*	mARegionPointer = nullptr;
+	size_t	mARegionSize = 0;
 
-	char*	mBRegionPointer ;
-	size_t	mBRegionSize ;
+	char*	mBRegionPointer = nullptr;
+	size_t	mBRegionSize = 0;
 
 };
 

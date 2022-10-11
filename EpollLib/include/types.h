@@ -28,5 +28,6 @@ using uint64	= u_int64_t;
 using SOCKET    = int;
 
 #define MAX_CONNECTION 5000
+#define MAX_BUFFERSIZE 2048
 
 #endif
